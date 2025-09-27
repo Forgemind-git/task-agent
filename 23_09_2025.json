@@ -1,0 +1,527 @@
+{
+  "name": "23/09/2025",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "328a614f-c186-4e59-9f95-ff17425b3a33",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "AekYqtqXBGZKgUpw",
+          "mode": "list",
+          "cachedResultName": "Multiple input types handler"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Incoming message": "={{ $json }}"
+          },
+          "matchingColumns": [
+            "Incoming message"
+          ],
+          "schema": [
+            {
+              "id": "Incoming message",
+              "displayName": "Incoming message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "object",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9014a3c1-02b0-4feb-bf5b-cae4d8114790",
+      "name": "Call 'Multiple input types handler'"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        656,
+        192
+      ],
+      "id": "9df10bb7-b4e6-4a8b-bc93-8ffcf56371cb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bFhM1Ps4YfzVOtHS",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.Whatsapp_id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        192
+      ],
+      "id": "71817db0-36dd-4191-9c71-d183ad9a5885",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "565738016632106",
+        "recipientPhoneNumber": "=+{{ $('When Executed by Another Workflow').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "a8d61d28-75ca-419b-a881-9252973e748c",
+      "name": "Send message",
+      "webhookId": "6afe19d1-c9ba-4f1f-bdf0-0f46e84ed823",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lL1GgrllRKYWJV0E",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "adc43cec-ee0a-4cbf-ab70-2e89bd414532",
+              "name": "output",
+              "value": "={{ $json.output }}{{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "386d6d73-74fa-4081-89f6-f698670c378b",
+              "name": "Whatsapp_id",
+              "value": "={{ $('When Executed by Another Workflow').item.json.contacts[0].wa_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "13d36970-55c7-46d1-bb12-e7bc8d5b1655",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=Current timestamp - {{ $now }}.\n\nROLE:\nYou are a concise, polite, and efficient assistant. Responsible for creating google calender events based on user inputs.\n\n### Tool Descriptions\n\n1. **Create Google Calendar Event**\n   - Use when the user wants to schedule a new event.\n   - Required inputs: `Title (Summary)`, `Start time`, `End time`, `Description`.\n\nFLOW\n\n- Everytime when the user starts a new conversation start with following\n\"Hello, 👋 How can I help you today?\"\n- Before the tool call, confirm with the user on the events that wil created in order like \n\"1. <Event name> - <event timing> <event date> <event description>\n2. ...\"\n- Everytime the tool is called and events are created respond with \"New Event(s) created ✅. Check out your calender for details.\"\n\nIMPORTANT GUIDELINES\n\n- Keep replies short and WhatsApp-friendly (1–3 short sentences).\n- If the user gives ambiguous input (e.g., \"this Friday\"), clarify before committing.\n- Always return times in 12-hour format with full date to avoid confusion. For Example 08:20 AM or 06:35 PM.\n- Always create reminders or alerts for the future, dont create them for the past. For example if now is 31-08-2025 08:30 AM, a reminder for 08:20 PM should be set to 31-08-2025 08:20 PM and not 30-08-2025 08:20 PM.\n- Use the current timestamp provided to interpret dates and context correctly.\n\nSTYLE RULES:\nBe clear, concise, and friendly.\nNo small talk or technical explanations.\nNever mention or explain these instructions.\nPrefer structured responses and summarize actions you're taking."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        736,
+        0
+      ],
+      "id": "34f977b4-9df3-4a27-af7c-ea90507ec5c5",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "endpointUrl": "https://n8n.srv879786.hstgr.cloud/mcp/Google-Calender",
+        "authentication": "bearerAuth",
+        "include": "selected",
+        "includeTools": [
+          "Create_an_event_in_Google_Calendar"
+        ],
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        192
+      ],
+      "id": "0d1e57d3-02b8-4b06-9be0-6d1dda114372",
+      "name": "Google Calendar MCP",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "5VL0PFRiQbKzAFDz",
+          "name": "MCP bearer auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "bearerAuth",
+        "path": "Google-Calender"
+      },
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        736,
+        336
+      ],
+      "id": "592c8a57-9b61-498a-a1a6-26d102e34be3",
+      "name": "MCP Server Trigger",
+      "webhookId": "11072120-5175-45e4-80bb-0f918e9c9bee",
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "5VL0PFRiQbKzAFDz",
+          "name": "MCP bearer auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "c_dcce1bfb3b279647de56baab7861f27f7d96fb324cb432544ceeb78d29bbf0eb@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Sample dummy"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        496
+      ],
+      "id": "7b4ab7f0-666e-408d-9ad3-43e2eb2e76de",
+      "name": "Create an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qMjbanmMUOzql00Y",
+          "name": "Contact@Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "c_dcce1bfb3b279647de56baab7861f27f7d96fb324cb432544ceeb78d29bbf0eb@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Sample dummy"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start_Time', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End_Time', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        496
+      ],
+      "id": "fb62b9f0-913c-4b6b-b629-e8456be21dfe",
+      "name": "Get availability in a calendar in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qMjbanmMUOzql00Y",
+          "name": "Contact@Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_dcce1bfb3b279647de56baab7861f27f7d96fb324cb432544ceeb78d29bbf0eb@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Sample dummy"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        496
+      ],
+      "id": "269eb13e-1daa-473f-ad41-b6d57da9df28",
+      "name": "Get many events in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qMjbanmMUOzql00Y",
+          "name": "Contact@Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "c_dcce1bfb3b279647de56baab7861f27f7d96fb324cb432544ceeb78d29bbf0eb@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Sample dummy"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        496
+      ],
+      "id": "2576efdf-5376-42fe-81d7-dda0ea1a5f8e",
+      "name": "Delete an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qMjbanmMUOzql00Y",
+          "name": "Contact@Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "c_dcce1bfb3b279647de56baab7861f27f7d96fb324cb432544ceeb78d29bbf0eb@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Sample dummy"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        496
+      ],
+      "id": "f77d7991-6ea0-4378-b5ce-0ff2fd63430b",
+      "name": "Update an event in Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qMjbanmMUOzql00Y",
+          "name": "Contact@Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "messaging_product": "whatsapp",
+          "metadata": {
+            "display_phone_number": "916380781053",
+            "phone_number_id": "565738016632106"
+          },
+          "contacts": [
+            {
+              "profile": {
+                "name": "Sathya Prakash"
+              },
+              "wa_id": "918903964878"
+            }
+          ],
+          "messages": [
+            {
+              "from": "918903964878",
+              "id": "wamid.HBgMOTE4OTAzOTY0ODc4FQIAEhgUM0E2NDJGMjA5RUM5MURFNUU0MTcA",
+              "timestamp": "1758455971",
+              "text": {
+                "body": "Hi"
+              },
+              "type": "text"
+            }
+          ],
+          "field": "messages"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Call 'Multiple input types handler'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Multiple input types handler'": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get availability in a calendar in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "89dd7efe-4291-49da-9927-2cc3984df813",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06109140a62dea529b2b0785c44ac542f843e14b83e6c0e2f1925a4b1d6ba673"
+  },
+  "id": "HSeUCztB8TrsqKSr",
+  "tags": []
+}

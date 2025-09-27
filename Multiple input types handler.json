@@ -1,0 +1,456 @@
+{
+  "name": "Multiple input types handler",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json[\"Incoming message\"].messages[0].type }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1dbe789d-82c3-4450-8b8c-7c21f6dcfc18"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "2b7fb774-9cd3-4c0f-a6c6-5227f80dcb95",
+                    "leftValue": "={{ $json[\"Incoming message\"].messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "90b51875-0d43-4811-b78d-921ae2fe085d",
+                    "leftValue": "={{ $json[\"Incoming message\"].messages[0].type }}",
+                    "rightValue": "audio",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -288,
+        80
+      ],
+      "id": "529902f8-0084-4d14-8e8a-5a0bdabc49c0",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('When Executed by Another Workflow').item.json[\"Incoming message\"].messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "effb1241-1e87-4a03-acb4-dd1378f967a3",
+      "name": "Get image Download link",
+      "webhookId": "0883d198-609a-4ab5-a0d7-ef9a898f93ad",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lL1GgrllRKYWJV0E",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Incoming message",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -512,
+        96
+      ],
+      "id": "7150cd10-94c0-435f-8c25-5c3dda14a70a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "565738016632106",
+        "recipientPhoneNumber": "=+{{ $('When Executed by Another Workflow').item.json[\"Incoming message\"].contacts[0].wa_id }}",
+        "textBody": "=Thanks 👍 Checking the shared details…",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        -96
+      ],
+      "id": "ed091bc2-e0b1-4390-bf06-1668ad986dd4",
+      "name": "Send message",
+      "webhookId": "9de6ce02-beba-42b4-80d3-510381cee89d",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lL1GgrllRKYWJV0E",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8619ef0a-c5c6-49cb-becf-1d38818e253f",
+              "name": "output",
+              "value": "={{ $('When Executed by Another Workflow').item.json[\"Incoming message\"].messages[0].text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        96
+      ],
+      "id": "344d1066-501f-46fc-9b9b-2e15f508a65f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('When Executed by Another Workflow').item.json[\"Incoming message\"].messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        288
+      ],
+      "id": "a2904ae5-917a-4f42-8654-909515ca50cd",
+      "name": "Get image Download link1",
+      "webhookId": "0883d198-609a-4ab5-a0d7-ef9a898f93ad",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "lL1GgrllRKYWJV0E",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get image Download link').item.json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAQ7wYeNLcIBOZBamG2UizWBbzuu5KwdLn18n0r3UP2GCwMTWht2PpLsfEruxZByzrB1kRQuC3bZAge6jK9l069WyxlrCGk3HzIUOUrWK9Md85QREIZBg7mo8pdmMsSrm7CoE3PaZC9nVi3dBKfQOZCXM3tpfvEKZBwJZAMZAUTePUOIpQR6SfCcREpU3ZA5xHGcJCRAZDZD"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        -96
+      ],
+      "id": "5b8218b8-b38b-4f93-ba5c-b8359dc6828f",
+      "name": "Download image"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get image Download link1').item.json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAQ7wYeNLcIBOZBamG2UizWBbzuu5KwdLn18n0r3UP2GCwMTWht2PpLsfEruxZByzrB1kRQuC3bZAge6jK9l069WyxlrCGk3HzIUOUrWK9Md85QREIZBg7mo8pdmMsSrm7CoE3PaZC9nVi3dBKfQOZCXM3tpfvEKZBwJZAMZAUTePUOIpQR6SfCcREpU3ZA5xHGcJCRAZDZD"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        160,
+        288
+      ],
+      "id": "e3979e95-a310-4ac5-974f-ffeca5bea93e",
+      "name": "Download image1"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "=You are an OCR system. Extract the full text from the provided handwritten screenshot with the highest possible accuracy. Respond with only the text extracted in the image.",
+        "inputType": "base64",
+        "options": {
+          "detail": "high",
+          "maxTokens": 1000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        608,
+        -96
+      ],
+      "id": "900c3fe3-ecb9-42ef-b5b5-7f2d3c9faf1f",
+      "name": "Analyze image",
+      "credentials": {
+        "openAiApi": {
+          "id": "Zmb9oacOxLJZfNhF",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "temperature": 0
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        384,
+        288
+      ],
+      "id": "2e3dc21c-7be9-483f-9657-6f746dd2dfff",
+      "name": "Transcribe a recording",
+      "credentials": {
+        "openAiApi": {
+          "id": "Zmb9oacOxLJZfNhF",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "Incoming message": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "916380781053",
+              "phone_number_id": "565738016632106"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Sathya Prakash"
+                },
+                "wa_id": "918903964878"
+              }
+            ],
+            "messages": [
+              {
+                "from": "918903964878",
+                "id": "wamid.HBgMOTE4OTAzOTY0ODc4FQIAEhgUM0E4N0E0Nzg1QTI3OEZBQ0YyQzYA",
+                "timestamp": "1758471176",
+                "type": "audio",
+                "audio": {
+                  "mime_type": "audio/ogg; codecs=opus",
+                  "sha256": "bh287HwRzxU2UodHF5ltE4zGSPxTRAlG3RPhcCuTIGg=",
+                  "id": "2542781456091868",
+                  "voice": true
+                }
+              }
+            ],
+            "field": "messages"
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get image Download link1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get image Download link": {
+      "main": [
+        [
+          {
+            "node": "Download image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message": {
+      "main": [
+        [
+          {
+            "node": "Get image Download link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get image Download link1": {
+      "main": [
+        [
+          {
+            "node": "Download image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download image": {
+      "main": [
+        [
+          {
+            "node": "Analyze image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download image1": {
+      "main": [
+        [
+          {
+            "node": "Transcribe a recording",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4adb9e7b-0757-4dad-a7f4-cb23b039a5af",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06109140a62dea529b2b0785c44ac542f843e14b83e6c0e2f1925a4b1d6ba673"
+  },
+  "id": "AekYqtqXBGZKgUpw",
+  "tags": []
+}
