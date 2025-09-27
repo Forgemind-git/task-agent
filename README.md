@@ -13,7 +13,7 @@ This repository is part of the [ForgeMindAI](https://www.youtube.com/@ForgeMindA
 
 ## To import the workflow to your n8n
 * Go to the 3 dots in the top right corner after creating a workflow.
-* Select import from file and select this file. (Apify_Scraper_Agent.json)
+* Select import from file and select this file. (23_09_2025.json)
   ![N8N import](./assets/import_workflow.png)
 
 For any queries on this repo, contact us on the following social handles:
